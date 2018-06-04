@@ -8,7 +8,10 @@ import S from './style.scss'
 class Layout extends Component {
   constructor(props) {
     super(props);
-    this.state = {  };
+    this.state = {  
+      // 保存用户信息
+      myInfo: null
+    };
   }
   render() {
     return (

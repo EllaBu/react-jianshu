@@ -4,6 +4,10 @@ import S from './style.scss';
 
 import Validation from 'util/validation' 
 
+let propTypes = {
+  // signInMsg: PT.object
+}
+
 export default class SignInPanel extends Component{
 
   constructor(props){
@@ -30,6 +34,7 @@ export default class SignInPanel extends Component{
 
     this.nameChange = this.nameChange.bind(this)
     this.passChange = this.passChange.bind(this)
+    this.onSubmit = this.onSubmit.bind(this)
   }
 
   nameChange (ev) {
@@ -53,15 +58,47 @@ export default class SignInPanel extends Component{
     console.log('passErr--' + msg)
   }
 
+  onSubmit (ev) {
+    ev.preventDefault()
+    ev.stopPropagation()
+
+    let {nameDom, passDom} = this.refs
+
+    let {validator} = this
+    let userErr = this.validator.valiOneByValue('username', nameDom.value)
+    let passErr = this.validator.valiOneByValue('password', passDom.value)
+    this.setState({
+      userErr,
+      passErr
+    })
+    if (!userErr && !passErr) {
+      this.props.signInAjax({
+        username: nameDom.value,
+        passw: passDom.value
+      })
+    }
+    
+  }
+
 
   render(){
     let {username, password, userErr, passErr} = this.state
-    let {nameChange, passChange} = this
+    let {nameChange, passChange, onSubmit} = this
+    let {signInMsg} = this.props
+    let signInfo = null
     let userErrMsg = userErr ? (<p className={S.err}>{userErr}</p>) : null
     let passErrMsg = passErr ? (<p className={S.err}>{passErr}</p>) : null
+    if(signInMsg && signInMsg.code !== 0){
+      signInfo = (
+        <div className="ui message error">
+          <p>{signInMsg.msg}</p>
+        </div>
+      )
+    }
     return (
       <div className={S.sign_panel}>
-        <form className="ui form">
+        {signInfo}
+        <form className="ui form" onSubmit={onSubmit}>
           <div className={`field ${userErr ? 'error' : ''}`}>
             <input
                 type="text"
