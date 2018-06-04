@@ -18,7 +18,7 @@ export default class SignIn extends React.Component{
       $.post(`${api.url}/login`, data)
         .done(res=>{
           console.log(res)
-          let {code, data} = res
+          let {code} = res
           if(code ===0){
 
           }else {

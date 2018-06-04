@@ -31,6 +31,7 @@ export default class SignUpPanel extends Component{
     this.nameChange = this.nameChange.bind(this)
     this.passChange = this.passChange.bind(this)
     this.rePasswordChange = this.rePasswordChange.bind(this)
+    this.onSubmit = this.onSubmit.bind(this)
   }
 
   nameChange (ev) {
@@ -70,15 +71,57 @@ export default class SignUpPanel extends Component{
     console.log('rePassErr--' + rePassErr)
   }
 
+  onSubmit(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    let {validator} = this;
+    let {username, password, rePassword} = this.state
+    let userErr = this.validator.valiOneByValue('username', username)
+    let passErr = this.validator.valiOneByValue('password', password)
+    let rePassErr = password === rePassword ? '' : '两次输入密码不一致！'
+    this.setState({
+      userErr,
+      passErr,
+      rePassErr
+    })
+    if(!userErr && !passErr && !rePassErr){
+      this.props.signUpAjax({
+        username,
+        passw: password, 
+        cfPassw: rePassword
+      })
+    }
+  }
+
   render(){
     let {username, password, rePassword, userErr, passErr, rePassErr} = this.state
-    let {nameChange, passChange, rePasswordChange} = this
+    let {nameChange, passChange, rePasswordChange, onSubmit} = this
+    let {signUpMsg} = this.props
+    let signUpInfo = null
     let userErrMsg = userErr ? (<p className={S.err}>{userErr}</p>) : null
     let passErrMsg = passErr ? (<p className={S.err}>{passErr}</p>) : null
     let rePassErrMsg = rePassErr ? (<p className={S.err}>{rePassErr}</p>) : null
+    if(signUpMsg){
+      if(signUpMsg.code===0){
+        signUpInfo = (
+          <div className="ui message positive">
+            <p>{signUpMsg.msg}</p>
+            <p>马上帮你登录</p>
+          </div>
+        );
+        }else{
+          signUpInfo = (
+            <div className="ui message error">
+              <p>{signUpMsg.msg}</p>
+            </div>
+          );
+        }
+    }
     return (
       <div className={S.sign_panel}>
-        <form className="ui form">
+        {signUpInfo}
+        <form className="ui form" onSubmit={onSubmit}>
           <div className={`field ${userErr ? 'error' : ''}`}>
             <input
                 type="text"
